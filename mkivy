@@ -11,7 +11,7 @@ parser.add_option("-k", "--kivymd", action="store_true", dest="md", default=Fals
 main = """
 from os.path import dirname, join
 
-from kivy.garden.iconfonts import register
+# from kivy.garden.iconfonts import register
 
 from app import MainApp
 
@@ -20,10 +20,38 @@ MainApp().run()
 
 init = """
 from kivy.app import App
+from kivy.utils import QueryDict, rgba
+from kivy.metrics import dp, sp
 
 from .view import MainWindow
 
 class MainApp(App):
+    colors = QueryDict()
+    colors.primary = rgba("#2D9CDB")
+    colors.secondary = rgba("#16213E")
+    colors.success = rgba("#1FC98E")
+    colors.warning = rgba("#F2C94C")
+    colors.danger = rgba("#EB5757")
+    colors.tertiary = rgba("#E8F0FF")
+    colors.tertiary_light = rgba("#F3F7FF")
+    colors.grey_dark = rgba("#c4c4c4")
+    colors.grey_light = rgba("#f5f5f5")
+    colors.black = rgba("#a1a1a1")
+    colors.white = rgba("#ffffff")
+
+    fonts = QueryDict()
+    fonts.size = QueryDict()
+    fonts.size.h1 = dp(24)
+    fonts.size.h2 = dp(22)
+    fonts.size.h3 = dp(18)
+    fonts.size.h4 = dp(16)
+    fonts.size.h5 = dp(14)
+    fonts.size.h6 = dp(12)
+
+    fonts.heading = 'assets/fonts/Inter/Inter-Bold.otf'
+    fonts.subheading = 'assets/fonts/Inter/Inter-Regular.otf'
+    fonts.body = 'assets/fonts/Inter/Inter-ExtraLight.otf'
+
     def build(self):
         return MainWindow()
 """
@@ -47,6 +75,7 @@ class MainWindow(BoxLayout):
 """
 
 kv = """
+
 <MainWindow>:
     orientation: 'vertical'
     canvas.before:
@@ -67,10 +96,49 @@ if not os.path.exists(path):
 else:
     sys.exit('[!] Project Path Already Exists')
 
+os.mkdir(os.path.join(path, 'api'))
 os.mkdir(os.path.join(path, 'app'))
+os.mkdir(os.path.join(path, 'assets'))
+os.mkdir(os.path.join(path, 'assets', 'imgs'))
+os.mkdir(os.path.join(path, 'assets', 'fonts'))
+os.mkdir(os.path.join(path, 'assets', 'icons'))
+os.mkdir(os.path.join(path, 'views'))
+os.mkdir(os.path.join(path, 'views', 'home'))
 
 with open(os.path.join(path, 'main.py'), 'w') as f:
     f.write(main)
+
+with open(os.path.join(path, 'views', 'home', '__init__.py'), 'w') as f:
+    data = "from .home import Home"
+    f.write(data)
+
+with open(os.path.join(path, 'views', 'home', 'home.kv'), 'w') as f:
+    data = "<Home>:\n\torientation: 'vertical'\n\t"
+    f.write(data)
+
+with open(os.path.join(path, 'views', 'home', 'home.py'), 'w') as f:
+    data = """
+from kivy.app import App
+from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.metrics import dp, sp
+from kivy.utils import rgba, QueryDict
+
+from kivy.clock import Clock
+
+from kivy.properties import StringProperty, ListProperty, ColorProperty, NumericProperty
+
+Builder.load_file('views/home/home.kv')
+class Home(BoxLayout):
+    def __init__(self, **kw) -> None:
+        super().__init__(**kw)
+        Clock.schedule_once(self.render, .1)
+
+    def render(self, _):
+        pass
+    """
+    f.write(data)
 
 with open(os.path.join(path, 'app', '__init__.py'), 'w') as f:
     f.write(md_init) if options.md == True else f.write(init)
